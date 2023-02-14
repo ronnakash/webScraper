@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
@@ -34,18 +35,30 @@ driver.implicitly_wait(10)
 
 # get the transaction JSON from web using Selenium
 def getTransactionJsonByTXID(transactionTXID):
+    def getTransactionJson():
+        try:
+            # wait for button to load
+            button = wait.until(EC.presence_of_element_located((By.XPATH, jsonButtonXPath)))
+            button.click()
+            # wait for JSON text to load
+            jsonTextElement = wait.until(EC.visibility_of_element_located((By.XPATH, jsonTextXPath)))
+            # find json element, extract text and convert to JSON
+            return json.loads(jsonTextElement.text), None
+        except TimeoutException as err:
+            return None, err
+
     # get the website
     driver.get(baseURL + transactionTXID)
-    # wait for button to load
-    button = wait.until(EC.presence_of_element_located((By.XPATH, jsonButtonXPath)))
-    button.click()
-    # wait for JSON text to load
-    jsonTextElement = wait.until(EC.visibility_of_element_located((By.XPATH, jsonTextXPath)))
-    # while len(jsonTextElement.text) == 0:
-    #     None
-    # find json element, extract text and convert to JSON
-    transactionJson = json.loads(jsonTextElement.text)
-    return transactionJson
+    for _ in range(0,3):
+        res, err = getTransactionJson()
+        print(res)
+        print(err)
+        if res != None:
+            return res
+        driver.refresh()
+        print("refresh")
+    raise err
+
 
 # check if the transaction is coinbase
 def isCoinbase(transactionJson):
