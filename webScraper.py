@@ -51,12 +51,9 @@ def getTransactionJsonByTXID(transactionTXID):
     driver.get(baseURL + transactionTXID)
     for _ in range(0,3):
         res, err = getTransactionJson()
-        print(res)
-        print(err)
         if res != None:
             return res
         driver.refresh()
-        print("refresh")
     raise err
 
 
