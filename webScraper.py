@@ -1,3 +1,4 @@
+import sys
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
@@ -8,16 +9,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 import json
 from collections import deque
 
-
-#########################################################
-# 
-# Solution tested on both Windows and Linux environments
-# on linux, driver got unexpectedly stuck on some runs
-# if that happens, moving driver and waiter setup and closing  
-# the driver to getTransactionJsonByTXID function should
-# fix the issue
-# 
-#########################################################
 
 
 # website base url
@@ -80,6 +71,8 @@ def BFS(startTXID):
 
 def main():
     startTXID = '79ec6ef52c0a2468787a5f671f666cf122f68aaed11a28b15b5da55c851aee75'
+    if (len(sys.argv) > 1):
+        startTXID = sys.argv[1]
     res = BFS(startTXID)
     # print results
     for elem in res:
